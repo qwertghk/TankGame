@@ -4,19 +4,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Vector;
 
-public class MyPanel extends JPanel implements KeyListener {
+public class MyPanel extends JPanel implements KeyListener ,Runnable{
 
-    MyTank myTank;
-    Vector<EnemyTank> enemyTanks =new Vector<>();
-    int enemyTankSize = 3;
+    MyTank            myTank;
+    Vector<EnemyTank> enemyTanks    = new Vector<>();
+    int               enemyTankSize = 3;
 
 
     public MyPanel() {
         myTank = new MyTank(100, 100);
         myTank.setSpeed(4);
-        for(int i=1;i <= enemyTankSize;i++){
+        for (int i = 1; i <= enemyTankSize; i++) {
             EnemyTank enemyTank = new EnemyTank(100 * i, 0);
             enemyTank.setDirection(2);
             enemyTanks.add(enemyTank);
@@ -31,9 +33,10 @@ public class MyPanel extends JPanel implements KeyListener {
         g.fillRect(0, 0, 1000, 750);
         drawTank(myTank.getX(), myTank.getY(), g, myTank.getDirection(), 0);
         for (EnemyTank enemyTank : enemyTanks) {
-
             drawTank(enemyTank.getX(), enemyTank.getY(), g, enemyTank.getDirection(), 1);
-
+        }
+        if (myTank.shot!=null&&myTank.shot.live){
+            g.drawOval(myTank.shot.x,myTank.shot.y,2,2);
         }
 
     }
@@ -106,12 +109,29 @@ public class MyPanel extends JPanel implements KeyListener {
             myTank.setDirection(3);
             myTank.moveLeft();
         }
+        if (e.getKeyCode() == KeyEvent.VK_J) {
+            System.out.println("1");
+            myTank.shotEnemyTank();
+        }
         this.repaint();
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
 
+    }
+
+
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            this.repaint();
+        }
     }
 }
 
