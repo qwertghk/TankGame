@@ -5,7 +5,15 @@ public class Tank {
     private int y;
     private int direction;
     private int speed;
+    private Boolean life =true;
 
+    public Boolean getLife() {
+        return life;
+    }
+
+    public void setLife(Boolean life) {
+        this.life = life;
+    }
 
     //上左下右移动
     public void moveUp() {

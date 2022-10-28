@@ -4,39 +4,88 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Vector;
 
-public class MyPanel extends JPanel implements KeyListener ,Runnable{
+public class MyPanel extends JPanel implements KeyListener, Runnable {
 
     MyTank            myTank;
     Vector<EnemyTank> enemyTanks    = new Vector<>();
     int               enemyTankSize = 3;
-
+    Vector<Bomb>      bombs         = new Vector<>();
+    Image             image;
 
     public MyPanel() {
-        myTank = new MyTank(100, 100);
+        myTank = new MyTank(400, 0);
         myTank.setSpeed(4);
         for (int i = 1; i <= enemyTankSize; i++) {
             EnemyTank enemyTank = new EnemyTank(100 * i, 0);
             enemyTank.setDirection(2);
+            Shot shot = new Shot(enemyTank.getX() + 20, enemyTank.getY() + 60, enemyTank.getDirection());
+            enemyTank.shots.add(shot);
+            new Thread(shot).start();
             enemyTanks.add(enemyTank);
         }
+        image=Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/boom.gif"));
 
+    }
 
+    public  void hitTank(Shot s, Tank tank) {
+        switch (tank.getDirection()) {
+            case 0:
+            case 2:
+                if (s.x > tank.getX() && s.x < tank.getX() + 40
+                        && s.y > tank.getY() && s.y < tank.getY() + 60) {
+                    s.live = false;
+                    tank.setLife(false);
+                    Bomb bomb=new Bomb(tank.getX(),tank.getY());
+                    bombs.add(bomb);
+                }
+            case 1:
+            case 3:
+                if (s.x > tank.getX() && s.x < tank.getX() + 60
+                        && s.y > tank.getY() && s.y < tank.getY() + 40) {
+                    s.live = false;
+                    tank.setLife(false);
+                    Bomb bomb=new Bomb(tank.getX(),tank.getY());
+                    bombs.add(bomb);
+                }
+
+        }
     }
 
     @Override
     public void paint(Graphics g) {
         super.paint(g);
         g.fillRect(0, 0, 1000, 750);
-        drawTank(myTank.getX(), myTank.getY(), g, myTank.getDirection(), 0);
-        for (EnemyTank enemyTank : enemyTanks) {
-            drawTank(enemyTank.getX(), enemyTank.getY(), g, enemyTank.getDirection(), 1);
+        if (myTank.getLife()) {
+            drawTank(myTank.getX(), myTank.getY(), g, myTank.getDirection(), 0);
         }
-        if (myTank.shot!=null&&myTank.shot.live){
-            g.drawOval(myTank.shot.x,myTank.shot.y,2,2);
+
+        for (EnemyTank enemyTank : enemyTanks) {
+            if (enemyTank.getLife()) {
+                drawTank(enemyTank.getX(), enemyTank.getY(), g, enemyTank.getDirection(), 1);
+                for (int j = 0; j < enemyTank.shots.size(); j++) {
+                    Shot shot = enemyTank.shots.get(j);
+                    if (shot.live) {
+                        g.drawOval(shot.x, shot.y, 2, 2);
+
+                    } else {
+                        enemyTank.shots.remove(shot);
+                    }
+                }
+            }
+        }
+        if (myTank.shot != null && myTank.shot.live && myTank.getLife()) {
+            g.drawOval(myTank.shot.x, myTank.shot.y, 2, 2);
+        }
+        for (Bomb bomb : bombs) {
+            if(bomb.isLive){
+                g.drawImage(image,bomb.x,bomb.y,260,135,this);
+            }
+            bomb.lifeDown();
+            if(bomb.life <= 0){
+                bombs.remove(bomb);
+            }
         }
 
     }
@@ -96,20 +145,20 @@ public class MyPanel extends JPanel implements KeyListener ,Runnable{
     @Override
     public void keyPressed(KeyEvent e) {
         //0:↑ 1: →2: ↓ 3:←
-        if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
+        if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP && myTank.getLife()) {
             myTank.setDirection(0);
             myTank.moveUp();
-        } else if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
+        } else if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT && myTank.getLife()) {
             myTank.setDirection(1);
             myTank.moveRight();
-        } else if (e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_DOWN) {
+        } else if (e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_DOWN && myTank.getLife()) {
             myTank.setDirection(2);
             myTank.moveDown();
-        } else if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
+        } else if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT && myTank.getLife()) {
             myTank.setDirection(3);
             myTank.moveLeft();
         }
-        if (e.getKeyCode() == KeyEvent.VK_J) {
+        if (e.getKeyCode() == KeyEvent.VK_J && myTank.getLife()) {
             System.out.println("1");
             myTank.shotEnemyTank();
         }
@@ -124,11 +173,22 @@ public class MyPanel extends JPanel implements KeyListener ,Runnable{
 
     @Override
     public void run() {
-        while (true) {
+        while (myTank.getLife()) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+            if (myTank.shot != null && myTank.shot.live) {
+                for (EnemyTank enemyTank : enemyTanks) {
+                    hitTank(myTank.shot, enemyTank);
+                }
+            }
+            for (EnemyTank enemyTank : enemyTanks) {
+                for (Shot shot : enemyTank.shots) {
+                    if (shot != null && shot.live)
+                        hitTank(shot, myTank);
+                }
             }
             this.repaint();
         }
