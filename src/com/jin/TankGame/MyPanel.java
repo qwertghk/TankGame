@@ -25,11 +25,11 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
             new Thread(shot).start();
             enemyTanks.add(enemyTank);
         }
-        image=Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/boom.gif"));
+        image = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/boom.gif"));
 
     }
 
-    public  void hitTank(Shot s, Tank tank) {
+    public void hitTank(Shot s, Tank tank) {
         switch (tank.getDirection()) {
             case 0:
             case 2:
@@ -37,7 +37,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
                         && s.y > tank.getY() && s.y < tank.getY() + 60) {
                     s.live = false;
                     tank.setLife(false);
-                    Bomb bomb=new Bomb(tank.getX(),tank.getY());
+                    Bomb bomb = new Bomb(tank.getX(), tank.getY());
                     bombs.add(bomb);
                 }
             case 1:
@@ -46,7 +46,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
                         && s.y > tank.getY() && s.y < tank.getY() + 40) {
                     s.live = false;
                     tank.setLife(false);
-                    Bomb bomb=new Bomb(tank.getX(),tank.getY());
+                    Bomb bomb = new Bomb(tank.getX(), tank.getY());
                     bombs.add(bomb);
                 }
 
@@ -78,14 +78,14 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
         if (myTank.shot != null && myTank.shot.live && myTank.getLife()) {
             g.drawOval(myTank.shot.x, myTank.shot.y, 2, 2);
         }
-        for (Bomb bomb : bombs) {
-            if(bomb.isLive){
-                g.drawImage(image,bomb.x,bomb.y,260,135,this);
-            }
-            bomb.lifeDown();
-            if(bomb.life <= 0){
-                bombs.remove(bomb);
-            }
+        for (int i = 0; i < bombs.size(); i++) {
+            Bomb bomb = bombs.get(i);
+            if (bomb.life > 0) {
+                g.drawImage(image, bomb.x, bomb.y, 260, 135, this);
+                bomb.lifeDown();
+            } else bombs.remove(bomb);
+
+
         }
 
     }
