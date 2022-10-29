@@ -1,11 +1,11 @@
 package com.jin.TankGame;
 
 public class Tank {
-    private int x;
-    private int y;
-    private int direction;
-    private int speed;
-    private Boolean life =true;
+    private int     x;
+    private int     y;
+    private int     direction;
+    private int     speed;
+    private Boolean life = true;
 
     public Boolean getLife() {
         return life;
@@ -17,15 +17,15 @@ public class Tank {
 
     //上左下右移动
     public void moveUp() {
-        y -= speed;
+        if (y > 0) y -= speed;
     }
 
     public void moveLeft() {
-        x -= speed;
+        if (x > 0) x -= speed;
     }
 
     public void moveDown() {
-        y += speed;
+       if (y<690)y += speed;
     }
 
     public int getSpeed() {
@@ -37,7 +37,7 @@ public class Tank {
     }
 
     public void moveRight() {
-        x += speed;
+       if (x<940)x += speed;
     }
 
     public int getDirection() {

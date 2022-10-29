@@ -20,6 +20,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
         for (int i = 1; i <= enemyTankSize; i++) {
             EnemyTank enemyTank = new EnemyTank(100 * i, 0);
             enemyTank.setDirection(2);
+            new Thread(enemyTank).start();
             Shot shot = new Shot(enemyTank.getX() + 20, enemyTank.getY() + 60, enemyTank.getDirection());
             enemyTank.shots.add(shot);
             new Thread(shot).start();
@@ -29,7 +30,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
 
     }
 
-    public void hitTank(Shot s, Tank tank) {
+    public void hitTank(Shot s, EnemyTank tank) {
         switch (tank.getDirection()) {
             case 0:
             case 2:
@@ -47,6 +48,8 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
                         && s.y > tank.getY() && s.y < tank.getY() + 40) {
                     s.live = false;
                     tank.setLife(false);
+                    enemyTanks.remove(tank);
+
                     Bomb bomb = new Bomb(tank.getX(), tank.getY());
                     bombs.add(bomb);
                 }
@@ -62,7 +65,8 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
             drawTank(myTank.getX(), myTank.getY(), g, myTank.getDirection(), 0);
         }
 
-        for (EnemyTank enemyTank : enemyTanks) {
+        for (int i = 0; i < enemyTanks.size(); i++) {
+            EnemyTank enemyTank = enemyTanks.get(i);
             if (enemyTank.getLife()) {
                 drawTank(enemyTank.getX(), enemyTank.getY(), g, enemyTank.getDirection(), 1);
                 for (int j = 0; j < enemyTank.shots.size(); j++) {
@@ -181,16 +185,17 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
                 e.printStackTrace();
             }
             if (myTank.shot != null && myTank.shot.live) {
-                for (EnemyTank enemyTank : enemyTanks) {
+                for (int i = 0; i < enemyTanks.size(); i++) {
+                    EnemyTank enemyTank = enemyTanks.get(i);
                     hitTank(myTank.shot, enemyTank);
                 }
             }
-            for (EnemyTank enemyTank : enemyTanks) {
-                for (Shot shot : enemyTank.shots) {
-                    if (shot != null && shot.live)
-                        hitTank(shot, myTank);
-                }
-            }
+//            for (EnemyTank enemyTank : enemyTanks) {
+//                for (Shot shot : enemyTank.shots) {
+//                    if (shot != null && shot.live)
+//                        hitTank(shot, myTank);
+//                }
+//            }
             this.repaint();
         }
     }
