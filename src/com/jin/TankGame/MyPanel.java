@@ -71,7 +71,7 @@ public void hitEnemyTank(){
     public void paint(Graphics g) {
         super.paint(g);
         g.fillRect(0, 0, 1000, 750);
-        if (myTank.getLife()) {
+        if (myTank!=null&&myTank.getLife()) {
             drawTank(myTank.getX(), myTank.getY(), g, myTank.getDirection(), 0);
         }
 
