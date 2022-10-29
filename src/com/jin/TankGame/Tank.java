@@ -25,7 +25,7 @@ public class Tank {
     }
 
     public void moveDown() {
-       if (y<690)y += speed;
+        if (y + 60 < 750) y += speed;
     }
 
     public int getSpeed() {
@@ -37,7 +37,7 @@ public class Tank {
     }
 
     public void moveRight() {
-       if (x<940)x += speed;
+        if (x + 60 < 1000) x += speed;
     }
 
     public int getDirection() {
