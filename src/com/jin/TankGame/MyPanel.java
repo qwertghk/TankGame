@@ -15,7 +15,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
     Image             image;
 
     public MyPanel() {
-        myTank = new MyTank(100, 100);
+        myTank = new MyTank(400, 100);
         myTank.setSpeed(10);
         for (int i = 1; i <= enemyTankSize; i++) {
             EnemyTank enemyTank = new EnemyTank(100 * i, 0);

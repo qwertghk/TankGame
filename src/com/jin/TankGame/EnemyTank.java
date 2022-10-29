@@ -10,7 +10,7 @@ public class EnemyTank extends Tank implements Runnable {
         super(x, y);
     }
 
-    private Boolean loop=true;
+    private Boolean loop = true;
 
     public Boolean getLoop() {
         return loop;
@@ -23,7 +23,33 @@ public class EnemyTank extends Tank implements Runnable {
     @Override
     public void run() {
         setSpeed(1);
+        Shot shot = null;
         while (loop) {
+            if (getLife() && shots.size() == 0) {
+                switch (getDirection()) {
+                    case (0):
+                        shot = new Shot(getX() + 20, getY(), 0);
+                        break;
+                    case (1):
+                        shot = new Shot(getX() + 60, getY() + 20, 1);
+                        break;
+
+                    case (2):
+                        shot = new Shot(getX() + 20, getY() + 60, 2);
+                        break;
+
+                    case (3):
+                        shot = new Shot(getX(), getY() + 20, 3);
+                        break;
+                }
+                shots.add(shot);
+                new Thread(shot).start();
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             switch (getDirection()) {
                 case 0:
                     for (int i = 0; i < 30 && getY() > 0; i++) {
