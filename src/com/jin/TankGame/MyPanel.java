@@ -37,6 +37,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
                         && s.y > tank.getY() && s.y < tank.getY() + 60) {
                     s.live = false;
                     tank.setLife(false);
+                    enemyTanks.remove(tank);
                     Bomb bomb = new Bomb(tank.getX(), tank.getY());
                     bombs.add(bomb);
                 }
